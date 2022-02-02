@@ -6,10 +6,10 @@
                 <div class="headline">
                     {{data.title}}
                 </div>
-                <span class="grey--text">{{data.user}} Said {{data.created_at}} - {{data.user_id}}</span>
+                <span class="grey--text">{{data.user}} Said {{data.created_at}}</span>
             </div>
             <v-spacer></v-spacer>
-            <v-btn color="teal">5 Replies</v-btn>
+            <v-btn color="teal">{{data.reply_count}} Replies</v-btn>
         </v-card-title>
         
         <v-card-text v-html="data.body"></v-card-text>

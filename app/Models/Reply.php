@@ -10,6 +10,14 @@ class Reply extends Model
     use HasFactory;
     protected $guarded = [];
 
+    public static function boot()
+    {
+        parent::boot();
+        static::creating(function($reply) {
+            $reply->user_id = auth()->id();
+        });
+    }
+
     public function question()
     {
         return $this->belongsTo(Question::class);
