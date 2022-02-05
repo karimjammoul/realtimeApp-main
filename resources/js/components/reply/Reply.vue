@@ -4,6 +4,8 @@
           <v-card-title>
               <div class="headline">{{data.user}}</div>
               <div class="ml-2">Said {{data.created_at}}</div>
+              <v-spacer></v-spacer>
+              <like :content="data"></like>
           </v-card-title>
           <v-divider></v-divider>
 
@@ -45,12 +47,14 @@
 
 <script>
 import EditReply from './EditReply.vue'
+import Like from '../likes/Like.vue'
 export default {
     props: ['data', 'index'],
-    components: {EditReply},
+    components: {EditReply, Like},
     data() {
         return {
-            editing: false
+            editing: false,
+            beforeEditReplyBody: ''
         }
     },
     computed: {
@@ -70,10 +74,15 @@ export default {
         },
         edit() {
             this.editing = true
+            this.beforeEditReplyBody = this.data.reply
         },
         listen() {
-            EventBus.$on('cancelEditing', () => {
+            EventBus.$on('cancelEditing', (reply) => {
                 this.editing = false
+                if(reply !== this.data.reply) {
+                    this.data.reply = this.beforeEditReplyBody
+                    this.beforeEditReplyBody = ''
+                }
             })
         }
     }
