@@ -38,3 +38,10 @@ Route::apiResource('/category', CategoryController::class);
 Route::apiResource('/question/{question}/reply', ReplyController::class);
 Route::post('/like/{reply}', [LikeController::class, 'likeIt']);
 Route::delete('/like/{reply}', [LikeController::class, 'unlikeIt']);
+
+Route::post('/notifications', function() {
+    return [
+        'read' => auth()->user()->readNotifications(),
+        'unread' => auth()->user()->unreadNotifications()
+    ];
+});
