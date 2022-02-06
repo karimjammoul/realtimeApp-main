@@ -2161,6 +2161,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
@@ -2179,12 +2181,24 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
 
       axios.post('/api/notifications').then(function (response) {
-        console.log(response.data);
         _this.read = response.data.read;
         _this.unread = response.data.unread;
         _this.unreadCount = response.data.unread.length;
       })["catch"](function (error) {
         console.log(error);
+      });
+    },
+    readNotification: function readNotification(notification) {
+      var _this2 = this;
+
+      axios.post('/api/markAsRead', {
+        id: notification.id
+      }).then(function (response) {
+        _this2.unread.splice(notification, 1);
+
+        _this2.read.push(notification);
+
+        _this2.unreadCount--;
       });
     }
   }
@@ -2241,6 +2255,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
+      loggedIn: User.loggedIn(),
       items: [{
         title: 'Forum',
         to: '/forum',
@@ -40693,13 +40708,15 @@ var render = function () {
                     [
                       _c("v-icon", [_vm._v("mdi-bell")]),
                       _vm._v(" "),
-                      _c("v-badge", { attrs: { color: "red" } }, [
-                        _vm._v(
-                          "\n                " +
-                            _vm._s(_vm.unreadCount) +
-                            "\n                "
-                        ),
-                      ]),
+                      _vm.unreadCount > 0
+                        ? _c("v-badge", { attrs: { color: "red" } }, [
+                            _vm._v(
+                              "\n                " +
+                                _vm._s(_vm.unreadCount) +
+                                "\n                "
+                            ),
+                          ])
+                        : _vm._e(),
                     ],
                     1
                   ),
@@ -40718,9 +40735,24 @@ var render = function () {
                   "v-list-item",
                   { key: item.id },
                   [
-                    _c("v-list-item-title", [
-                      _vm._v(_vm._s(item.data.question)),
-                    ]),
+                    _c(
+                      "router-link",
+                      { attrs: { to: item.path } },
+                      [
+                        _c(
+                          "v-list-item-title",
+                          {
+                            on: {
+                              click: function ($event) {
+                                return _vm.readNotification(item)
+                              },
+                            },
+                          },
+                          [_vm._v(_vm._s(item.question))]
+                        ),
+                      ],
+                      1
+                    ),
                   ],
                   1
                 )
@@ -40732,11 +40764,7 @@ var render = function () {
                 return _c(
                   "v-list-item",
                   { key: item.id },
-                  [
-                    _c("v-list-item-title", [
-                      _vm._v(_vm._s(item.data.question)),
-                    ]),
-                  ],
+                  [_c("v-list-item-title", [_vm._v(_vm._s(item.question))])],
                   1
                 )
               }),
@@ -40792,7 +40820,7 @@ var render = function () {
           _vm._v(" "),
           _c("v-spacer"),
           _vm._v(" "),
-          _c("app-notification"),
+          _vm.loggedIn ? _c("app-notification") : _vm._e(),
           _vm._v(" "),
           _c(
             "div",
@@ -41907,7 +41935,7 @@ var render = function () {
           {
             key: "label",
             fn: function () {
-              return [_c("div", [_vm._v("\n            Question\n        ")])]
+              return [_c("div", [_vm._v("\n            Reply\n        ")])]
             },
             proxy: true,
           },

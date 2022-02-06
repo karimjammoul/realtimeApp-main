@@ -6,7 +6,7 @@
         >
             <template v-slot:label>
             <div>
-                Question
+                Reply
             </div>
             </template>
         </v-textarea>
