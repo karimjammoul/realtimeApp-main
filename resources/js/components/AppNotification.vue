@@ -40,6 +40,12 @@ export default {
         if(User.loggedIn()) {
             this.getNotifications()
         }
+
+        Echo.private('App.Models.User.' + User.id())
+          .notification((notification) => {
+              this.unread.unshift(notification)
+              this.unreadCount++
+          });
     },
     methods: {
         getNotifications() {
