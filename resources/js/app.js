@@ -8,6 +8,8 @@ import Vue from 'vue'
 import Vuetify from 'vuetify'
 import User from './Helpers/User'
 import router from './router/router'
+import Exception from './Helpers/Exception'
+window.Exception = Exception
 
 Vue.use(Vuetify)
 

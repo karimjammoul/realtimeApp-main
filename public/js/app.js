@@ -2193,7 +2193,7 @@ __webpack_require__.r(__webpack_exports__);
         _this2.unread = response.data.unread;
         _this2.unreadCount = response.data.unread.length;
       })["catch"](function (error) {
-        console.log(error);
+        return Exception.handle(error);
       });
     },
     readNotification: function readNotification(notification) {
@@ -2793,6 +2793,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 
 
 
@@ -2813,6 +2816,11 @@ __webpack_require__.r(__webpack_exports__);
   created: function created() {
     this.listen();
     this.getQuestion();
+  },
+  computed: {
+    loggedIn: function loggedIn() {
+      return User.loggedIn();
+    }
   },
   methods: {
     listen: function listen() {
@@ -2902,12 +2910,28 @@ __webpack_require__.r(__webpack_exports__);
       own: null
     };
   },
+  created: function created() {
+    var _this = this;
+
+    EventBus.$on('newReply', function () {
+      _this.data.reply_count++;
+    });
+    Echo["private"]('App.Models.User.' + User.id()).notification(function (notification) {
+      _this.data.reply_count++;
+    });
+    EventBus.$on('deleteReply', function () {
+      _this.data.reply_count--;
+    });
+    Echo.channel('deleteReplyChannel').listen('DeleteReplyEvent', function (e) {
+      _this.data.reply_count--;
+    });
+  },
   methods: {
     destroy: function destroy() {
-      var _this = this;
+      var _this2 = this;
 
       axios["delete"]("/api/question/".concat(this.data.slug)).then(function (res) {
-        return _this.$router.push('/forum');
+        return _this2.$router.push('/forum');
       })["catch"](function (error) {
         return console.log(error.response.data);
       });
@@ -3554,6 +3578,56 @@ var AppStorage = /*#__PURE__*/function () {
 
 /***/ }),
 
+/***/ "./resources/js/Helpers/Exception.js":
+/*!*******************************************!*\
+  !*** ./resources/js/Helpers/Exception.js ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _User__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./User */ "./resources/js/Helpers/User.js");
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+
+
+var Exception = /*#__PURE__*/function () {
+  function Exception() {
+    _classCallCheck(this, Exception);
+  }
+
+  _createClass(Exception, [{
+    key: "handle",
+    value: function handle(error) {
+      this.isExpired(error.response.data.error);
+    }
+  }, {
+    key: "isExpired",
+    value: function isExpired(error) {
+      if (error == 'Token is invalid') {
+        _User__WEBPACK_IMPORTED_MODULE_0__["default"].logout();
+      }
+
+      if (error == 'Token is expired') {
+        _User__WEBPACK_IMPORTED_MODULE_0__["default"].logout();
+      }
+    }
+  }]);
+
+  return Exception;
+}();
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Exception = new Exception());
+
+/***/ }),
+
 /***/ "./resources/js/Helpers/Token.js":
 /*!***************************************!*\
   !*** ./resources/js/Helpers/Token.js ***!
@@ -3596,7 +3670,20 @@ var Token = /*#__PURE__*/function () {
   }, {
     key: "decode",
     value: function decode(payload) {
-      return JSON.parse(atob(payload));
+      if (this.isBase64(payload)) {
+        return JSON.parse(atob(payload));
+      }
+
+      return false;
+    }
+  }, {
+    key: "isBase64",
+    value: function isBase64(str) {
+      try {
+        return btoa(atob(str)).replace(/=/g, "") == str;
+      } catch (err) {
+        return false;
+      }
     }
   }]);
 
@@ -3662,7 +3749,7 @@ var User = /*#__PURE__*/function () {
       var storedToken = _AppStorage__WEBPACK_IMPORTED_MODULE_1__["default"].getToken();
 
       if (storedToken) {
-        return _Token__WEBPACK_IMPORTED_MODULE_0__["default"].isValid(storedToken) ? true : false;
+        return _Token__WEBPACK_IMPORTED_MODULE_0__["default"].isValid(storedToken) ? true : this.logout();
       }
 
       return false;
@@ -3721,10 +3808,11 @@ var User = /*#__PURE__*/function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
-/* harmony import */ var vuetify__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vuetify */ "./node_modules/vuetify/dist/vuetify.js");
-/* harmony import */ var vuetify__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(vuetify__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var vuetify__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuetify */ "./node_modules/vuetify/dist/vuetify.js");
+/* harmony import */ var vuetify__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(vuetify__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _Helpers_User__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Helpers/User */ "./resources/js/Helpers/User.js");
 /* harmony import */ var _router_router__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./router/router */ "./resources/js/router/router.js");
+/* harmony import */ var _Helpers_Exception__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Helpers/Exception */ "./resources/js/Helpers/Exception.js");
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"];
@@ -3733,8 +3821,10 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].component('AppHome', __webpack_requi
 
 
 
-vue__WEBPACK_IMPORTED_MODULE_0__["default"].use((vuetify__WEBPACK_IMPORTED_MODULE_3___default()));
-var vuetify = new (vuetify__WEBPACK_IMPORTED_MODULE_3___default())();
+
+window.Exception = _Helpers_Exception__WEBPACK_IMPORTED_MODULE_3__["default"];
+vue__WEBPACK_IMPORTED_MODULE_0__["default"].use((vuetify__WEBPACK_IMPORTED_MODULE_4___default()));
+var vuetify = new (vuetify__WEBPACK_IMPORTED_MODULE_4___default())();
 window.User = _Helpers_User__WEBPACK_IMPORTED_MODULE_1__["default"];
 window.EventBus = new vue__WEBPACK_IMPORTED_MODULE_0__["default"]();
 var app = new vue__WEBPACK_IMPORTED_MODULE_0__["default"]({
@@ -47642,7 +47732,20 @@ var render = function () {
             [
               _c("replies", { attrs: { question: _vm.question } }),
               _vm._v(" "),
-              _c("new-reply", { attrs: { questionSlug: _vm.question.slug } }),
+              _vm.loggedIn
+                ? _c("new-reply", {
+                    attrs: { questionSlug: _vm.question.slug },
+                  })
+                : _c(
+                    "div",
+                    { staticClass: "mt-4" },
+                    [
+                      _c("router-link", { attrs: { to: "/login" } }, [
+                        _vm._v("Log In to Reply"),
+                      ]),
+                    ],
+                    1
+                  ),
             ],
             1
           ),
