@@ -4,6 +4,7 @@
       @submit.prevent="create"
     >
 
+      <span class="red--text" v-if="errors.title">{{errors.title[0]}}</span>
       <v-text-field
         v-model="form.title"
         label="Title"
@@ -11,6 +12,7 @@
         required
       ></v-text-field>
 
+      <span class="red--text" v-if="errors.category_id">{{errors.category_id[0]}}</span>
       <v-select
         :items="categories"
         item-text="name"
@@ -20,6 +22,7 @@
         autocomplete
       ></v-select>
 
+        <span class="red--text" v-if="errors.body">{{errors.body[0]}}</span>
         <v-textarea
               v-model="form.body"
               color="teal"
@@ -35,6 +38,7 @@
         color="blue"
         class="mr-4"
         type="submit"
+        :disabled="disabled"
       >
         Create
       </v-btn>
@@ -66,8 +70,13 @@ export default {
         create() {
             axios.post('/api/question', this.form)
             .then(res => this.$router.push(res.data.path))
-            .catch(error => this.errors = error.response.data.error)
+            .catch(error => this.errors = error.response.data.errors)
         }
+    },
+    computed: {
+      disabled() {
+          return !(this.form.title && this.form.body && this.form.category_id)
+      }
     }
 }
 </script>

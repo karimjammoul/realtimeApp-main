@@ -1,10 +1,8 @@
 <template>
   <div>
-    <v-toolbar dark prominent src="https://cdn.vuetifyjs.com/images/backgrounds/vbanner.jpg">
+    <v-toolbar dark>
     
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
-
-      <v-toolbar-title>Vuetify</v-toolbar-title>
+      <router-link class="white--text" to="/">Jammoulista Forum</router-link>
       <v-spacer></v-spacer>
 
       <app-notification v-if="loggedIn"></app-notification>
