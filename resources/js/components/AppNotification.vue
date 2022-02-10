@@ -34,6 +34,7 @@ export default {
             read: {},
             unread: {},
             unreadCount: 0,
+            sound: 'https://proxy.notificationsounds.com/message-tones/pristine-609/download/file-sounds-1150-pristine.mp3'
         }
     },
     created() {
@@ -43,11 +44,17 @@ export default {
 
         Echo.private('App.Models.User.' + User.id())
           .notification((notification) => {
+              this.playSound()
               this.unread.unshift(notification)
               this.unreadCount++
           });
     },
     methods: {
+        playSound() {
+            var audio = new Audio(this.sound);
+            audio.muted = true;
+            audio.play();
+        },
         getNotifications() {
             axios.post('/api/notifications')
             .then(response => {
