@@ -2762,6 +2762,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -2771,17 +2780,28 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
-      questions: {}
+      questions: {},
+      meta: {}
     };
   },
   created: function created() {
-    var _this = this;
+    this.fetchQuestions();
+  },
+  methods: {
+    fetchQuestions: function fetchQuestions(page) {
+      var _this = this;
 
-    axios.get('/api/question').then(function (res) {
-      return _this.questions = res.data.data;
-    })["catch"](function (error) {
-      return console.log(error.response.data);
-    });
+      var url = page ? '/api/question?page=' + page : '/api/question';
+      axios.get(url).then(function (res) {
+        _this.questions = res.data.data;
+        _this.meta = res.data.meta;
+      })["catch"](function (error) {
+        return console.log(error.response.data);
+      });
+    },
+    changePage: function changePage(page) {
+      this.fetchQuestions(page);
+    }
   }
 });
 
@@ -47857,6 +47877,25 @@ var render = function () {
                   attrs: { data: question },
                 })
               }),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "text-center" },
+                [
+                  _c("v-pagination", {
+                    attrs: { length: _vm.meta.total },
+                    on: { input: _vm.changePage },
+                    model: {
+                      value: _vm.meta.current_page,
+                      callback: function ($$v) {
+                        _vm.$set(_vm.meta, "current_page", $$v)
+                      },
+                      expression: "meta.current_page",
+                    },
+                  }),
+                ],
+                1
+              ),
             ],
             2
           ),
